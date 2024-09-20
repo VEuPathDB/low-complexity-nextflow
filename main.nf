@@ -72,7 +72,7 @@ process indexResults {
 
   script:
   """
-  sort -k1,1 -k4,4n $bed > ${outputFileName}
+  sort -k1,1 -k2,2n $bed > ${outputFileName}
   bgzip ${outputFileName}
   tabix -p bed ${outputFileName}.gz
   """
