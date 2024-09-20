@@ -24,7 +24,7 @@ else {
 workflow {
   dustResults = dustmaker(seqs)
   bedFiles = interval2bed(dustResults)
-  indexed = indexResults(bedFiles.collectFile())
+  indexed = indexResults(bedFiles.collectFile(),params.outputFileName)
 }
 
 process dustmaker {
@@ -60,21 +60,20 @@ process interval2bed {
 process indexResults {
   container = 'biocontainers/tabix:v1.9-11-deb_cv1'
 
-  publishDir params.outputDir, mode: 'copy', pattern: 'sorted.bed',  saveAs: {filename->params.outputFileName}
-  publishDir params.outputDir, mode: 'copy', pattern: 'sorted_input.bed.gz.tbi',  saveAs: {filename->params.outputFileName+".gz.tbi"}
+  publishDir params.outputDir, mode: 'copy'
 
   input:
     path bed
+    val outputFileName
 
   output:
-    path 'sorted.bed'
-    path 'sorted_input.bed.gz.tbi'
+    path '*.bed.gz'
+    path '*.gz.tbi'
 
   script:
   """
-  sort -k1,1 -k4,4n $bed > sorted_input.bed
-  cp sorted_input.bed sorted.bed
-  bgzip sorted_input.bed
-  tabix -p bed sorted_input.bed.gz
+  sort -k1,1 -k4,4n $bed > ${outputFileName}
+  bgzip ${outputFileName}
+  tabix -p bed ${outputFileName}.gz
   """
 }
