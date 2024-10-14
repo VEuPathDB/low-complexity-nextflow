@@ -9,6 +9,10 @@ if(!params.fastaSubsetSize) {
   throw new Exception("Missing params.fastaSubsetSize")
 }
 
+if(!params.seqType) {
+  throw new Exception("Missing params.seqType")
+}
+
 if(params.inputFilePath) {
   seqs = Channel.fromPath( params.inputFilePath )
            .splitFasta( by:params.fastaSubsetSize, file:true  )
@@ -22,23 +26,25 @@ else {
 //--------------------------------------------------------------------------
 
 workflow {
-  dustResults = dustmaker(seqs)
-  bedFiles = interval2bed(dustResults)
-  indexed = indexResults(bedFiles.collectFile(),params.outputFileName)
+  program = params.seqType == "aa"? "seg" : "dust";
+  results = masker(seqs, program)
+  bedFiles = interval2bed(results, program)
+  indexed = indexResults(bedFiles.collectFile(), params.outputFileName)
 }
 
-process dustmaker {
+process masker {
   container = 'veupathdb/blastsimilarity'
 
   input:
   path subsetFasta
+  val program
 
   output:
-  path "dust.out"
+  path "${program}.out"
 
   script:
   """
-  dustmasker -in $subsetFasta -outfmt acclist -out dust.out
+  ${program}masker -in $subsetFasta -outfmt interval -out ${program}.out
   """
 }
 
@@ -46,14 +52,15 @@ process interval2bed {
   container = 'bioperl/bioperl:stable'
 
   input:
-  path dust
+  path inpath
+  val program
 
   output:
-  path "dust.bed"
+  path "${program}.bed"
 
   script:
   """
-  interval2bed.pl $dust dust.bed
+  interval2bed.pl $inpath ${program}.bed
   """
 }
 
