@@ -21,9 +21,9 @@ while(<FILE>) {
     if (/^>(\S+)/) {
 	$currentId = $1;
     } elsif (/(\d+)\s\-\s(\d+)/) {
-	my $start = $1;
-	my $end = $2;
-	print OUT "$currentId\t$start\t$end\n";
+        my $start = $1 - 1; # NOTE:  bedgraph format is zero based half open
+        my $end = $2;
+        print OUT "$currentId\t$start\t$end\n";
     } else {
 	die "unexepected interval format.  line: $_\n";
     }
