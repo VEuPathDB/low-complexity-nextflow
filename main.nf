@@ -33,7 +33,7 @@ workflow {
 }
 
 process masker {
-  container = 'veupathdb/blastsimilarity:v1.0.0'
+  container = 'veupathdb/blastsimilarity:1.0.0'
 
   input:
   path subsetFasta
