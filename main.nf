@@ -33,7 +33,7 @@ workflow {
 }
 
 process masker {
-  container = 'veupathdb/blastsimilarity:1.0.0'
+  container 'veupathdb/blastsimilarity:1.0.0'
 
   input:
   path subsetFasta
@@ -49,7 +49,7 @@ process masker {
 }
 
 process interval2bed {
-  container = 'bioperl/bioperl:stable'
+  container 'bioperl/bioperl:stable'
 
   input:
   path inpath
@@ -65,7 +65,7 @@ process interval2bed {
 }
 
 process indexResults {
-  container = 'biocontainers/tabix:v1.9-11-deb_cv1'
+  container 'biocontainers/tabix:v1.9-11-deb_cv1'
 
   publishDir params.outputDir, mode: 'copy'
 
