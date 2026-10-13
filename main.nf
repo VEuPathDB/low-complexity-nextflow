@@ -5,27 +5,27 @@ nextflow.enable.dsl=2
 // Param Checking
 //--------------------------------------------------------------------------
 
-if(!params.fastaSubsetSize) {
-  throw new Exception("Missing params.fastaSubsetSize")
-}
-
-if(!params.seqType) {
-  throw new Exception("Missing params.seqType")
-}
-
-if(params.inputFilePath) {
-  seqs = Channel.fromPath( params.inputFilePath )
-           .splitFasta( by:params.fastaSubsetSize, file:true  )
-}
-else {
-  throw new Exception("Missing params.inputFilePath")
-}
-
 //--------------------------------------------------------------------------
 // Main Workflow
 //--------------------------------------------------------------------------
 
 workflow {
+  if(!params.fastaSubsetSize) {
+    error "Missing params.fastaSubsetSize"
+  }
+
+  if(!params.seqType) {
+    error "Missing params.seqType"
+  }
+
+  if(params.inputFilePath) {
+    seqs = channel.fromPath( params.inputFilePath )
+             .splitFasta( by:params.fastaSubsetSize, file:true  )
+  }
+  else {
+    error "Missing params.inputFilePath"
+  }
+
   program = params.seqType == "aa"? "seg" : "dust";
   results = masker(seqs, program)
   bedFiles = interval2bed(results, program)
